@@ -46,7 +46,7 @@ public class Launcher {
         System.out.println("Database Started...");
 	
         //READ CLASS COMMENTS BEFORE USING
-        //graphDBEngine = new GraphDBEngine();
+        graphDBEngine = new GraphDBEngine();
 
         cepEngine = new CEPEngine();
 
