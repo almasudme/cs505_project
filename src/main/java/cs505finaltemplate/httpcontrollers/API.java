@@ -3,6 +3,10 @@ package cs505finaltemplate.httpcontrollers;
 import com.google.gson.Gson;
 import cs505finaltemplate.Launcher;
 
+import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.OrientDB;
+import com.orientechnologies.orient.core.db.OrientDBConfig;
+
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
@@ -13,10 +17,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.List;
+import java.util.*;
 
 @Path("/api")
 public class API {
@@ -87,7 +88,7 @@ public class API {
 	@GET
     @Path("/zipalertlist")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getZipAlert() {
+    public Response getZipAlert(@HeaderParam("X-Auth-API-Key") String authKey) {
         String responseString = "{}";
         try {
 
@@ -158,7 +159,7 @@ public class API {
 	@GET
     @Path("/getpatientstatus")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getAllHospitalStatus() {
+    public Response getAllHospitalStatus(@HeaderParam("X-Auth-API-Key") String authKey) {
         String responseString = "{}";
 
         try {
@@ -180,9 +181,23 @@ public class API {
             responseMap.put("in-patient_count", Integer.toString(count[0]));
 			responseMap.put("icu-patient_count", Integer.toString(count[1]));
 			responseMap.put("patient_vent_count", Integer.toString(count[2]));
-			responseMap.put("in-patient_count_vax", Float.toString(vax_count[0]/count[0]));
-			responseMap.put("icu-patient_count_vax", Float.toString(vax_count[1]/count[1]));
+			if (count[0] != 0){
+				Float in_p_percent = (float) vax_count[0]/ (float) count[0];
+				responseMap.put("in-patient_count_vax", Float.toString(vax_count[0]/count[0]));
+			}
+			
+			if (count[1] != 0){
+				Float icu_p_percent = (float) vax_count[1]/ (float) count[1];
+				responseMap.put("icu-patient_count_vax", Float.toString(vax_count[1]/count[1]));
+			}
+			
+			if (count[2] != 0){
+			Float vent_p_percent = (float) vax_count[2]/ (float) count[2];
 			responseMap.put("patient_vent_count_vax", Float.toString(vax_count[2]/count[2]));
+			 
+			}
+			
+			
             
 
 						
@@ -206,7 +221,7 @@ public class API {
     @GET
     @Path("/getpatientstatus/{hospital_id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getSpecificHospitalStatus(@PathParam("hospital_id") String hid) {
+    public Response getSpecificHospitalStatus(@HeaderParam("X-Auth-API-Key") String authKey , @PathParam("hospital_id") String hid) {
         String responseString = "{}";
 
         /*
@@ -252,9 +267,21 @@ public class API {
             responseMap.put("in-patient_count", Integer.toString(count[0]));
 			responseMap.put("icu-patient_count", Integer.toString(count[1]));
 			responseMap.put("patient_vent_count", Integer.toString(count[2]));
-			responseMap.put("in-patient_count_vax", Float.toString(vax_count[0]/count[0]));
-			responseMap.put("icu-patient_count_vax", Float.toString(vax_count[1]/count[1]));
+			if (count[0] != 0){
+				Float in_p_percent = (float) vax_count[0]/ (float) count[0];
+				responseMap.put("in-patient_count_vax", Float.toString(vax_count[0]/count[0]));
+			}
+			
+			if (count[1] != 0){
+				Float icu_p_percent = (float) vax_count[1]/ (float) count[1];
+				responseMap.put("icu-patient_count_vax", Float.toString(vax_count[1]/count[1]));
+			}
+			
+			if (count[2] != 0){
+			Float vent_p_percent = (float) vax_count[2]/ (float) count[2];
 			responseMap.put("patient_vent_count_vax", Float.toString(vax_count[2]/count[2]));
+			 
+			}
             
 
 						
@@ -275,7 +302,7 @@ public class API {
 	@GET
     @Path("/reset")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getResetStatus() {
+    public Response getResetStatus(@HeaderParam("X-Auth-API-Key") String authKey) {
         String responseString = "{}";
         try {
             Map<String,Object> res = new HashMap<String, Object>();
@@ -285,6 +312,64 @@ public class API {
                 res.put("reset_status_code", 0);
             }
 
+            responseString = gson.toJson(res);
+
+        } catch (Exception ex) {
+
+            StringWriter sw = new StringWriter();
+            ex.printStackTrace(new PrintWriter(sw));
+            String exceptionAsString = sw.toString();
+            ex.printStackTrace();
+
+            return Response.status(500).entity(exceptionAsString).build();
+        }
+        return Response.ok(responseString).header("Access-Control-Allow-Origin", "*").build();
+    }
+	
+	@GET
+    @Path("/getconfirmedcontacts/{mrn}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getConfirmedContacts(@HeaderParam("X-Auth-API-Key") String authKey,
+                                         @PathParam("mrn") String mrn) {
+        String responseString = "{}";
+        try {
+
+            Map<String,Object> res = new HashMap<String, Object>();
+
+
+        OrientDB orient = new OrientDB("remote:localhost", OrientDBConfig.defaultConfig());
+        ODatabaseSession db = orient.open("covid_data", "root", "rootpwd");
+
+            res.put("contactlist", Launcher.graphDBEngine.getContacts(db,mrn));
+            responseString = gson.toJson(res);
+
+        } catch (Exception ex) {
+
+            StringWriter sw = new StringWriter();
+            ex.printStackTrace(new PrintWriter(sw));
+            String exceptionAsString = sw.toString();
+            ex.printStackTrace();
+
+            return Response.status(500).entity(exceptionAsString).build();
+        }
+        return Response.ok(responseString).header("Access-Control-Allow-Origin", "*").build();
+    }
+
+    @GET
+    @Path("/getpossiblecontacts/{mrn}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getPossibleContacts(@HeaderParam("X-Auth-API-Key") String authKey,
+                                         @PathParam("mrn") String mrn) {
+        
+        OrientDB orient = new OrientDB("remote:localhost", OrientDBConfig.defaultConfig());
+        ODatabaseSession db = orient.open("covid_data", "root", "rootpwd");
+        
+        String responseString = "{}";
+        try {
+
+            Map<String,Object> res = new HashMap<String, Object>();
+
+            res.put("contactlist", Launcher.graphDBEngine.getPossibleContacts(db,mrn));
             responseString = gson.toJson(res);
 
         } catch (Exception ex) {

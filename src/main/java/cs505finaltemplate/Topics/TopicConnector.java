@@ -1,13 +1,16 @@
 package cs505finaltemplate.Topics;
 
+import cs505finaltemplate.graphDB.GraphDBEngine;
+import cs505finaltemplate.Launcher;
+import cs505finaltemplate.CEP.accessRecord;
+
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.DeliverCallback;
-import cs505finaltemplate.Launcher;
-import cs505finaltemplate.Models.Patient;
+
 import io.siddhi.query.api.expression.condition.In;
 
 import java.lang.reflect.Type;
@@ -15,7 +18,8 @@ import java.util.HashMap;
 import java.util.Set;
 import java.util.List;
 import java.util.Map;
-import cs505finaltemplate.CEP.accessRecord;
+
+
 
 
 public class TopicConnector {
@@ -80,6 +84,9 @@ public class TopicConnector {
                 List<TestingData> incomingList = gson.fromJson(message, typeListTestingData);
 				int sizeOfincomingList = incomingList.size();
 				
+				// OrientDB orient = new OrientDB("remote:localhost", OrientDBConfig.defaultConfig());
+				// ODatabaseSession db = orient.open("covid_data", "root", "rootpwd");
+				
                 for (TestingData testingData : incomingList) {
 
                     //Data to send to CEP
@@ -95,6 +102,14 @@ public class TopicConnector {
 
                     //do something else with each record
                     // for debug 
+					
+					String patient_name = testingData.patient_name;
+                    String patient_mrn = testingData.patient_mrn;
+					int  testing_id = testingData.testing_id;
+					int patient_zipcode = testingData.patient_zipcode;
+					int patient_status = testingData.patient_status;
+					List<String> contact_list =   testingData.contact_list;
+					List<String> event_list =   testingData.event_list;
                     System.out.println("*Java Class*");
                     System.out.println("\ttesting_id = " + testingData.testing_id);
                     System.out.println("\tpatient_name = " + testingData.patient_name);
@@ -104,6 +119,10 @@ public class TopicConnector {
                     System.out.println("\tcontact_list = " + testingData.contact_list);
                     System.out.println("\tevent_list = " + testingData.event_list);
 					
+                    // To Graph data
+					
+					GraphDBEngine.add_rec(testing_id, patient_name, patient_mrn, patient_zipcode, patient_status, contact_list, event_list);
+                    
 					// Prepare message for CEP
 					if(testingData.patient_status == 1){
                         System.out.println("Patient : "+testingData.patient_mrn+" is +++++++. Zip code is: "+testingData.patient_zipcode);
@@ -115,6 +134,8 @@ public class TopicConnector {
                         Launcher.cepEngine.input(Launcher.inputStreamName, inputEvent);
                     }                    
                 }
+			// db.close();
+            // orient.close();
             };
 
             channel.basicConsume(queueName, true, deliverCallback, consumerTag -> {

@@ -31,22 +31,22 @@ public class Launcher {
 	
     
     
-    //public static final String API_SERVICE_KEY = "12602303"; //Change this to your student id
+    public static final String API_SERVICE_KEY = "12602303"; //student id
     public static final int WEB_PORT = 8082;
 
     public static String lastCEPOutput = "{}";
 
     public static void main(String[] args) throws IOException {
 
-
+        //READ CLASS COMMENTS BEFORE USING
+        graphDBEngine = new GraphDBEngine();
         //startig DB/CEP init
 		System.out.println("Starting Apache Derby Database...");
         //Embedded database initialization
         dbEngine = new DBEngine();
         System.out.println("Database Started...");
 	
-        //READ CLASS COMMENTS BEFORE USING
-        graphDBEngine = new GraphDBEngine();
+
 
         cepEngine = new CEPEngine();
 
@@ -73,7 +73,7 @@ public class Launcher {
 
         //start message collector
         Map<String,String> message_config = new HashMap<>();
-        message_config.put("hostname","vbu231.cs.uky.edu"); //Fill config for your team in
+        message_config.put("hostname","vbu231.cs.uky.edu"); //vbu231 for live, maal281 Fill config for your team in
         message_config.put("port","5672"); //
         message_config.put("username","team_2");
         message_config.put("password","myPassCS505");
