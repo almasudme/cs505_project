@@ -61,9 +61,34 @@ public class DBEngine {
         }
 
     }
-	public void reset() throws IOException {
-		delete(Paths.get(databaseName).toFile());
-	}
+	public void reset(String tableName) throws IOException {
+		int result = -1;
+        try {
+            Connection conn = ds.getConnection();
+            try {
+                String stmtString = null;
+
+                stmtString = "DELETE FROM " + tableName;
+
+                Statement stmt = conn.createStatement();
+
+                result = stmt.executeUpdate(stmtString);
+
+                stmt.close();
+            } catch (Exception e) {
+
+                e.printStackTrace();
+            } finally {
+                conn.close();
+            }
+
+        } catch(Exception ex) {
+            ex.printStackTrace();
+        }
+        
+    }
+		
+	
     public static DataSource setupDataSource(String connectURI) {
         //
         // First, we'll create a ConnectionFactory that the
@@ -367,7 +392,8 @@ public class DBEngine {
         }
 
         return vaxList;
-    }
+}
+
 	
 	public boolean getVaxDataOfMrn(String mrn){
 		boolean isVaccinated=false;

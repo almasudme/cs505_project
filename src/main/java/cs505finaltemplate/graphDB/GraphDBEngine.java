@@ -185,11 +185,12 @@ public class GraphDBEngine {
 
     }
 
-    private void clearDB(ODatabaseSession db) {
+    public static void clearDB(ODatabaseSession db) {
+		
 
         String query = "DELETE VERTEX FROM patient";
         db.command(query);
-
+		
     }
 
 }

@@ -2,6 +2,7 @@ package cs505finaltemplate.httpcontrollers;
 
 import com.google.gson.Gson;
 import cs505finaltemplate.Launcher;
+import cs505finaltemplate.graphDB.GraphDBEngine;
 
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.OrientDB;
@@ -42,7 +43,7 @@ public class API {
             Map<String,String> responseMap = new HashMap<>();
             responseMap.put("team_name", "Team Alpha Bravo");
             responseMap.put("Team_members_sids", "[12602303,12598195]");
-            responseMap.put("app_status_code","0");
+            responseMap.put("app_status_code","1");
 
             responseString = gson.toJson(responseMap);
 
@@ -159,7 +160,7 @@ public class API {
 	@GET
     @Path("/getpatientstatus")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getAllHospitalStatus(@HeaderParam("X-Auth-API-Key") String authKey) {
+    public Response getAllHospitalStatus() {
         String responseString = "{}";
 
         try {
@@ -221,7 +222,7 @@ public class API {
     @GET
     @Path("/getpatientstatus/{hospital_id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getSpecificHospitalStatus(@HeaderParam("X-Auth-API-Key") String authKey , @PathParam("hospital_id") String hid) {
+    public Response getSpecificHospitalStatus(@PathParam("hospital_id") String hid) {
         String responseString = "{}";
 
         /*
@@ -329,7 +330,7 @@ public class API {
 	@GET
     @Path("/getconfirmedcontacts/{mrn}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getConfirmedContacts(@HeaderParam("X-Auth-API-Key") String authKey,
+    public Response getConfirmedContacts(
                                          @PathParam("mrn") String mrn) {
         String responseString = "{}";
         try {
@@ -358,8 +359,7 @@ public class API {
     @GET
     @Path("/getpossiblecontacts/{mrn}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getPossibleContacts(@HeaderParam("X-Auth-API-Key") String authKey,
-                                         @PathParam("mrn") String mrn) {
+    public Response getPossibleContacts(@PathParam("mrn") String mrn) {
         
         OrientDB orient = new OrientDB("remote:localhost", OrientDBConfig.defaultConfig());
         ODatabaseSession db = orient.open("covid_data", "root", "rootpwd");
@@ -388,7 +388,17 @@ public class API {
         try {
 
             System.out.println("Clearing Derby!");
-            Launcher.dbEngine.reset();
+            Launcher.dbEngine.reset("vaxdata");
+			Launcher.dbEngine.reset("hospitaldata");
+			System.out.println("Clearing Derby--DONE!!");
+			
+			System.out.println("Clearing OrientDB!");
+			OrientDB orient = new OrientDB("remote:localhost", OrientDBConfig.defaultConfig());
+            ODatabaseSession db = orient.open("covid_data", "root", "rootpwd");
+			GraphDBEngine.clearDB(db);
+			db.close();
+			orient.close();
+			System.out.println("Clearing OrientDB--DONE!!");
             
             return true;
         }catch (Exception ex){
