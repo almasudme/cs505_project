@@ -82,7 +82,7 @@ public class TopicConnector {
 
 
                 List<TestingData> incomingList = gson.fromJson(message, typeListTestingData);
-				int sizeOfincomingList = incomingList.size();
+				
 				
 				// OrientDB orient = new OrientDB("remote:localhost", OrientDBConfig.defaultConfig());
 				// ODatabaseSession db = orient.open("covid_data", "root", "rootpwd");
@@ -110,14 +110,14 @@ public class TopicConnector {
 					int patient_status = testingData.patient_status;
 					List<String> contact_list =   testingData.contact_list;
 					List<String> event_list =   testingData.event_list;
-                    System.out.println("*Java Class*");
-                    System.out.println("\ttesting_id = " + testingData.testing_id);
-                    System.out.println("\tpatient_name = " + testingData.patient_name);
-                    System.out.println("\tpatient_mrn = " + testingData.patient_mrn);
-                    System.out.println("\tpatient_zipcode = " + testingData.patient_zipcode);
-                    System.out.println("\tpatient_status = " + testingData.patient_status);
-                    System.out.println("\tcontact_list = " + testingData.contact_list);
-                    System.out.println("\tevent_list = " + testingData.event_list);
+                    // System.out.println("*Java Class*");
+                    // System.out.println("\ttesting_id = " + testingData.testing_id);
+                    // System.out.println("\tpatient_name = " + testingData.patient_name);
+                    // System.out.println("\tpatient_mrn = " + testingData.patient_mrn);
+                    // System.out.println("\tpatient_zipcode = " + testingData.patient_zipcode);
+                    // System.out.println("\tpatient_status = " + testingData.patient_status);
+                    // System.out.println("\tcontact_list = " + testingData.contact_list);
+                    // System.out.println("\tevent_list = " + testingData.event_list);
 					
                     // To Graph data
 					
@@ -195,6 +195,7 @@ public class TopicConnector {
             ex.printStackTrace();
         }
     }
+
 
     private void vaxListChannel(Channel channel) {
         try {

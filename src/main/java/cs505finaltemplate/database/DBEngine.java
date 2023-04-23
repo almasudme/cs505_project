@@ -329,7 +329,8 @@ public class DBEngine {
             String queryString = null;
 
             //fill in the query
-            queryString = "SELECT * FROM hospitaldata where hospital_id = '"+hid+"';";
+            // queryString = "SELECT * FROM hospitaldata where hospital_id = '"+hid+"'";
+			queryString = "SELECT * FROM hospitaldata where hospital_id = "+hid ;
 
 
             try(Connection conn = ds.getConnection()) {
