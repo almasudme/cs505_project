@@ -10,3 +10,13 @@ open both port 2424 and 2480 from openstack dashboard and execute following in c
 bash build.sh
 
 
+## API queries for testing
+- mf_1# http://maal281.cs.uky.edu:8082/api/getteam
+- mf_2# http://maal281.cs.uky.edu:8082/api/reset
+- rtr_1# http://maal281.cs.uky.edu:8082/api/zipalertlist
+- rtr_2# http://maal281.cs.uky.edu:8082/api/alertlist
+- ct_1# http://maal281.cs.uky.edu:8082/api/getconfirmedcontacts/{mrn}
+- ct_2# http://maal281.cs.uky.edu:8082/api/getpossiblecontacts/{mrn} 
+- of_1# http://maal281.cs.uky.edu:8082/api/getpatientstatus/{hospital_id} 
+- of_2# http://maal281.cs.uky.edu:8082/api/getpatientstatus/{hospital_id} 
+
